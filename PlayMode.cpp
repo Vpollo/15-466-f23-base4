@@ -31,17 +31,20 @@ PlayMode::~PlayMode() {
 }
 
 bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+	if (evt.type == SDL_MOUSEMOTION) {
+		//https://wiki.libsdl.org/SDL2/SDL_GetMouseState
+		SDL_GetMouseState(&mouse_x, &mouse_y);
+		return true;
+	}
+
 	return false;
 }
 
 void PlayMode::update(float elapsed) {
-
+	// std::cout << mouse_x << ", " << mouse_y << "\n";
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
-	// std::cout << drawable_size.x << ", " << drawable_size.y << "\n";
-	// render_text(test_string1, glm::vec2(100.0f, 100.0f), drawable_size, glm::vec3(1.0f, 1.0f, 1.0f));
-	// render_text("妈妈再见", glm::vec2(800.0f, 500.0f), drawable_size, glm::vec3(0.0f, 1.0f, 1.0f));
 	render_puzzle(drawable_size);
 }
 
@@ -57,21 +60,40 @@ void PlayMode::render_puzzle(glm::uvec2 const& drawable_size) {
 	float start_y = (drawable_size.y - PUZZLE_DIST_Y * PUZZLE_HEIGHT) / 2.0f + FONT_SIZE - drawable_size.y * 0.1f;
 
 	//see if mouse curser is on any of the characters
-	//[start_x, start_x+FONT_SIZE]
+	//the y axis of SDL and the viewport is inverted, so we account for that
+	//[start_x, start_x+FONT_SIZE] + k * PUZZLE_DIST_X
+
 
 	//render the grid of characters to the bottom center of screen
 	for (size_t x = 0; x < PUZZLE_WIDTH; x++) {
 		for (size_t y = 0; y < PUZZLE_HEIGHT; y++) {
 			glm::vec2 pos = glm::vec2(start_x + x * PUZZLE_DIST_X, start_y + y * PUZZLE_DIST_Y);
+			glm::vec3 color = mouse_on_this_character(pos, drawable_size) ? COLOR_HIGHLIGHTED : COLOR_NORMAL;
 			if (x == correct_x && y == correct_y) {
-				render_text(levels[at_level].first, pos, drawable_size, COLOR_NORMAL);
+				render_text(levels[at_level].first, pos, drawable_size, color);
 			} else {
-				render_text(levels[at_level].second, pos, drawable_size, COLOR_NORMAL);
+				render_text(levels[at_level].second, pos, drawable_size, color);
 			}
 		}
 	}
 
 	last_level = at_level;
+}
+
+bool PlayMode::mouse_on_this_character(glm::vec2 char_pos, glm::uvec2 const& drawable_size) {
+	const float TOLERANCE = 15.0f;
+	float x_min = char_pos.x - TOLERANCE;
+	float x_max = char_pos.x + FONT_SIZE + TOLERANCE;
+	float y_min = char_pos.y - TOLERANCE;
+	float y_max = char_pos.y + FONT_SIZE + TOLERANCE;
+
+	int mouse_y_veiwport = drawable_size.y - mouse_y;
+	if (mouse_x >= x_min && mouse_x <= x_max 
+	    && mouse_y_veiwport >= y_min && mouse_y_veiwport <= y_max) {
+		return true;
+	}
+
+	return false;
 }
 
 void PlayMode::render_text(std::string text, glm::vec2 pos, glm::uvec2 const& drawable_size, glm::vec3 color) {

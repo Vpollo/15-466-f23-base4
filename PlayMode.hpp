@@ -22,23 +22,26 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	void render_puzzle(glm::uvec2 const& drawable_size);
-	void render_text(std::string text, glm::vec2 pos, glm::uvec2 const& drawable_size, glm::vec3 color);
 
 	//----- game state -----
 	int at_level = 0;
 	int last_level = -1;
 	int correct_x, correct_y;
-	std::vector< std::pair< std::string, std::string > > levels = {
-		std::pair< std::string, std::string > ("鸟", "乌"),
-	};
+	int mouse_x, mouse_y;
+	float time_left = -1.0f;
 
 	//----- configurations -----
 	int PUZZLE_HEIGHT = 4;
 	int PUZZLE_WIDTH = 6;
 	const float PUZZLE_DIST_X = 100.0f;
 	const float PUZZLE_DIST_Y = 100.0f;
+	const float LEVEL_TIME = 15.0f;
 	const glm::vec3 COLOR_NORMAL = glm::vec3(1.0f, 1.0f, 1.0f);
-	const glm::vec3 COLOR_HIGHLIGHTED = glm::vec3(0.2f, 1.0f, 0.2f);
+	const glm::vec3 COLOR_HIGHLIGHTED = glm::vec3(0.1f, 0.84f, 0.0f);
+	//LEVELS
+	std::vector< std::pair< std::string, std::string > > levels = {
+		std::pair< std::string, std::string > ("鸟", "乌"),
+	};
 
 	//------- text rendering -------
 	FT_Library ft_library;
@@ -47,6 +50,10 @@ struct PlayMode : Mode {
 	hb_buffer_t* hb_buffer;
 
 	GLuint VAO, VBO, program;
+
+	//----- helper functions -----
+	void render_text(std::string text, glm::vec2 pos, glm::uvec2 const& drawable_size, glm::vec3 color);
+	bool mouse_on_this_character(glm::vec2 char_pos, glm::uvec2 const& drawable_size);
 
 	//----- for testing only -----
 	std::string test_string = "String is here!";
