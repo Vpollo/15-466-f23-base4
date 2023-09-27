@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include <vector>
-#include <deque>
+#include <utility>
 
 #include <hb.h>
 #include <hb-ft.h>
@@ -21,13 +21,26 @@ struct PlayMode : Mode {
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
-	//void render_puzzle(glm::uvec2 const& drawable_size, std::string const& correct_char, std::string const& wrong_char);
+	void render_puzzle(glm::uvec2 const& drawable_size);
 	void render_text(std::string text, glm::vec2 pos, glm::uvec2 const& drawable_size, glm::vec3 color);
 
 	//----- game state -----
+	int at_level = 0;
+	int last_level = -1;
+	int correct_x, correct_y;
+	std::vector< std::pair< std::string, std::string > > levels = {
+		std::pair< std::string, std::string > ("鸟", "乌"),
+	};
 
+	//----- configurations -----
+	int PUZZLE_HEIGHT = 4;
+	int PUZZLE_WIDTH = 6;
+	const float PUZZLE_DIST_X = 100.0f;
+	const float PUZZLE_DIST_Y = 100.0f;
+	const glm::vec3 COLOR_NORMAL = glm::vec3(1.0f, 1.0f, 1.0f);
+	const glm::vec3 COLOR_HIGHLIGHTED = glm::vec3(0.2f, 1.0f, 0.2f);
 
-	//------- text rendering --------
+	//------- text rendering -------
 	FT_Library ft_library;
 	FT_Face ft_face;
 	hb_font_t* hb_font;
@@ -35,6 +48,7 @@ struct PlayMode : Mode {
 
 	GLuint VAO, VBO, program;
 
+	//----- for testing only -----
 	std::string test_string = "String is here!";
 	std::string test_string1 = "妈妈你好";
 };

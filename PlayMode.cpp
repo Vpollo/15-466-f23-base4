@@ -9,7 +9,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <random>
+#include <ctime>
 #include <iostream>
 
 #define FONT_SIZE 36
@@ -23,6 +23,8 @@ PlayMode::PlayMode() {
 
     hb_font = hb_ft_font_create(ft_face, NULL);
 	hb_buffer = hb_buffer_create();
+
+	std::srand(static_cast< unsigned int >(std::time(nullptr)));
 }
 
 PlayMode::~PlayMode() {
@@ -37,8 +39,39 @@ void PlayMode::update(float elapsed) {
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
-	render_text(test_string1, glm::vec2(100.0f, 100.0f), drawable_size, glm::vec3(1.0f, 1.0f, 1.0f));
-	render_text("妈妈再见", glm::vec2(800.0f, 500.0f), drawable_size, glm::vec3(0.0f, 1.0f, 1.0f));
+	// std::cout << drawable_size.x << ", " << drawable_size.y << "\n";
+	// render_text(test_string1, glm::vec2(100.0f, 100.0f), drawable_size, glm::vec3(1.0f, 1.0f, 1.0f));
+	// render_text("妈妈再见", glm::vec2(800.0f, 500.0f), drawable_size, glm::vec3(0.0f, 1.0f, 1.0f));
+	render_puzzle(drawable_size);
+}
+
+void PlayMode::render_puzzle(glm::uvec2 const& drawable_size) {
+	//get random int in range: https://stackoverflow.com/questions/7560114/random-number-c-in-some-range
+	//init a new correct pos for puzzle if new level is loaded
+	if (last_level != at_level) {
+		correct_x = std::rand() % PUZZLE_WIDTH;
+		correct_y = std::rand() % PUZZLE_HEIGHT;
+	}
+
+	float start_x = (drawable_size.x - PUZZLE_DIST_X * PUZZLE_WIDTH) / 2.0f + FONT_SIZE;
+	float start_y = (drawable_size.y - PUZZLE_DIST_Y * PUZZLE_HEIGHT) / 2.0f + FONT_SIZE - drawable_size.y * 0.1f;
+
+	//see if mouse curser is on any of the characters
+	//[start_x, start_x+FONT_SIZE]
+
+	//render the grid of characters to the bottom center of screen
+	for (size_t x = 0; x < PUZZLE_WIDTH; x++) {
+		for (size_t y = 0; y < PUZZLE_HEIGHT; y++) {
+			glm::vec2 pos = glm::vec2(start_x + x * PUZZLE_DIST_X, start_y + y * PUZZLE_DIST_Y);
+			if (x == correct_x && y == correct_y) {
+				render_text(levels[at_level].first, pos, drawable_size, COLOR_NORMAL);
+			} else {
+				render_text(levels[at_level].second, pos, drawable_size, COLOR_NORMAL);
+			}
+		}
+	}
+
+	last_level = at_level;
 }
 
 void PlayMode::render_text(std::string text, glm::vec2 pos, glm::uvec2 const& drawable_size, glm::vec3 color) {
@@ -131,8 +164,15 @@ void PlayMode::render_text(std::string text, glm::vec2 pos, glm::uvec2 const& dr
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
         pos += glm::vec2(glyph_positions[i].x_advance >> 6, glyph_positions[i].y_advance >> 6); // bitshift by 6 to get value in pixels in both x and y (2^6 = 64)
+
+		//https://stackoverflow.com/questions/42554090/c-opengl-memory-leak
+		glDeleteTextures(1, &texture);
 	}
 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//prevent memory leaks https://stackoverflow.com/questions/42554090/c-opengl-memory-leak
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
 }
