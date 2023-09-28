@@ -11,6 +11,8 @@
 
 #include <ctime>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #define FONT_SIZE 36
 #define MARGIN (FONT_SIZE * .5)
@@ -25,6 +27,7 @@ PlayMode::PlayMode() {
 	hb_buffer = hb_buffer_create();
 
 	std::srand(static_cast< unsigned int >(std::time(nullptr)));
+	time_left = LEVEL_TIME;
 }
 
 PlayMode::~PlayMode() {
@@ -53,20 +56,48 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	// std::cout << mouse_x << ", " << mouse_y << "\n";
-
+	if (!all_level_finished) {
+		time_left -= elapsed;
+		if (time_left < 0.0f) {
+			level_finish(false);
+		}
+	}
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f); //1.0 is actually the default value to clear the depth buffer to, but FYI you can change it.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (mouse_clicked) {
 		if (click_on_correct(drawable_size)) {
 			std::cout << "\nsuccess\n"; 
-		} else std::cout << "\nfail\n"; 
+			level_finish(true);
+		} else {
+			std::cout << "\nfail\n"; 
+			level_finish(false);
+		}
 	}
 
-	render_puzzle(drawable_size);
+	if (!all_level_finished) {
+		render_puzzle(drawable_size);
+		render_timer_and_score(drawable_size);
+	}
 
 	mouse_clicked = false;
+}
+
+void PlayMode::level_finish(bool win) {
+	if (win) {
+		score++;
+	}
+
+	at_level++;
+	if (at_level == levels.size()) {
+		all_level_finished = true;
+	} else {
+		time_left = LEVEL_TIME;
+	}
 }
 
 void PlayMode::render_puzzle(glm::uvec2 const& drawable_size) {
@@ -94,6 +125,23 @@ void PlayMode::render_puzzle(glm::uvec2 const& drawable_size) {
 	}
 
 	last_level = at_level;
+}
+
+void PlayMode::render_timer_and_score(glm::uvec2 const& drawable_size) {
+	//convert time left to string with 2 digit precision
+	//https://stackoverflow.com/questions/29200635/convert-float-to-string-with-precision-number-of-decimal-digits-specified
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision(2) << time_left;
+	std::string time_left_s = stream.str();
+	glm::vec2 pos = glm::vec2(FONT_SIZE, drawable_size.y - FONT_SIZE*2);
+	render_text("Time Left: " + time_left_s, pos, drawable_size, COLOR_NORMAL);
+
+	pos = glm::vec2(drawable_size.x - FONT_SIZE*5, drawable_size.y - FONT_SIZE*2);
+	render_text("Score: " + std::to_string(score), pos, drawable_size, COLOR_NORMAL);
+}
+
+void PlayMode::render_finish_screen(glm::uvec2 const& drawable_size){
+	
 }
 
 bool PlayMode::mouse_on_this_character(glm::vec2 char_pos, glm::uvec2 const& drawable_size) {

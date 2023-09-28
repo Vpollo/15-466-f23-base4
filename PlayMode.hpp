@@ -22,6 +22,10 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	void render_puzzle(glm::uvec2 const& drawable_size);
+	void render_timer_and_score(glm::uvec2 const& drawable_size);
+	void render_finish_screen(glm::uvec2 const& drawable_size);
+
+	void level_finish(bool win);
 
 	//----- game state -----
 	int at_level = 0;
@@ -30,18 +34,27 @@ struct PlayMode : Mode {
 	int mouse_x, mouse_y;
 	float time_left = -1.0f;
 	bool mouse_clicked = false;
+	bool all_level_finished = false;
+	int score = 0;
 
 	//----- configurations -----
-	int PUZZLE_HEIGHT = 4;
+	int PUZZLE_HEIGHT = 5;
 	int PUZZLE_WIDTH = 6;
 	const float PUZZLE_DIST_X = 100.0f;
 	const float PUZZLE_DIST_Y = 100.0f;
-	const float LEVEL_TIME = 15.0f;
+	const float LEVEL_TIME = 10.0f;
+	//colors
 	const glm::vec3 COLOR_NORMAL = glm::vec3(1.0f, 1.0f, 1.0f);
 	const glm::vec3 COLOR_HIGHLIGHTED = glm::vec3(0.1f, 0.84f, 0.0f);
 	//LEVELS
 	std::vector< std::pair< std::string, std::string > > levels = {
+		std::pair< std::string, std::string > ("口", "一"),
+		std::pair< std::string, std::string > ("乱", "乩"),
+		std::pair< std::string, std::string > ("忐", "忑"),
+		std::pair< std::string, std::string > ("五", "丑"),
+		std::pair< std::string, std::string > ("乒", "乓"),
 		std::pair< std::string, std::string > ("鸟", "乌"),
+		std::pair< std::string, std::string > ("糅", "煣"),
 	};
 
 	//------- text rendering -------
