@@ -31,10 +31,21 @@ PlayMode::~PlayMode() {
 }
 
 bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
-	if (evt.type == SDL_MOUSEMOTION) {
+	if (evt.type == SDL_KEYDOWN) {
+		if (evt.key.keysym.sym == SDLK_ESCAPE) {
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			return true;
+		}
+	}
+
+	else if (evt.type == SDL_MOUSEMOTION) {
 		//https://wiki.libsdl.org/SDL2/SDL_GetMouseState
 		SDL_GetMouseState(&mouse_x, &mouse_y);
 		return true;
+	}
+
+	else if (evt.type == SDL_MOUSEBUTTONDOWN) {
+		mouse_clicked = true;
 	}
 
 	return false;
@@ -42,10 +53,20 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	// std::cout << mouse_x << ", " << mouse_y << "\n";
+
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
+
+	if (mouse_clicked) {
+		if (click_on_correct(drawable_size)) {
+			std::cout << "\nsuccess\n"; 
+		} else std::cout << "\nfail\n"; 
+	}
+
 	render_puzzle(drawable_size);
+
+	mouse_clicked = false;
 }
 
 void PlayMode::render_puzzle(glm::uvec2 const& drawable_size) {
@@ -58,11 +79,6 @@ void PlayMode::render_puzzle(glm::uvec2 const& drawable_size) {
 
 	float start_x = (drawable_size.x - PUZZLE_DIST_X * PUZZLE_WIDTH) / 2.0f + FONT_SIZE;
 	float start_y = (drawable_size.y - PUZZLE_DIST_Y * PUZZLE_HEIGHT) / 2.0f + FONT_SIZE - drawable_size.y * 0.1f;
-
-	//see if mouse curser is on any of the characters
-	//the y axis of SDL and the viewport is inverted, so we account for that
-	//[start_x, start_x+FONT_SIZE] + k * PUZZLE_DIST_X
-
 
 	//render the grid of characters to the bottom center of screen
 	for (size_t x = 0; x < PUZZLE_WIDTH; x++) {
@@ -91,6 +107,23 @@ bool PlayMode::mouse_on_this_character(glm::vec2 char_pos, glm::uvec2 const& dra
 	if (mouse_x >= x_min && mouse_x <= x_max 
 	    && mouse_y_veiwport >= y_min && mouse_y_veiwport <= y_max) {
 		return true;
+	}
+
+	return false;
+}
+
+bool PlayMode::click_on_correct(glm::uvec2 const& drawable_size) {
+	float start_x = (drawable_size.x - PUZZLE_DIST_X * PUZZLE_WIDTH) / 2.0f + FONT_SIZE;
+	float start_y = (drawable_size.y - PUZZLE_DIST_Y * PUZZLE_HEIGHT) / 2.0f + FONT_SIZE - drawable_size.y * 0.1f;
+
+	for (size_t x = 0; x < PUZZLE_WIDTH; x++) {
+		for (size_t y = 0; y < PUZZLE_HEIGHT; y++) {
+			glm::vec2 pos = glm::vec2(start_x + x * PUZZLE_DIST_X, start_y + y * PUZZLE_DIST_Y);
+			if (mouse_on_this_character(pos, drawable_size)) {
+				if (x == correct_x && y == correct_y) return true;
+				else return false;
+			}
+		}
 	}
 
 	return false;

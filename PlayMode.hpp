@@ -29,6 +29,7 @@ struct PlayMode : Mode {
 	int correct_x, correct_y;
 	int mouse_x, mouse_y;
 	float time_left = -1.0f;
+	bool mouse_clicked = false;
 
 	//----- configurations -----
 	int PUZZLE_HEIGHT = 4;
@@ -54,6 +55,7 @@ struct PlayMode : Mode {
 	//----- helper functions -----
 	void render_text(std::string text, glm::vec2 pos, glm::uvec2 const& drawable_size, glm::vec3 color);
 	bool mouse_on_this_character(glm::vec2 char_pos, glm::uvec2 const& drawable_size);
+	bool click_on_correct(glm::uvec2 const& drawable_size);
 
 	//----- for testing only -----
 	std::string test_string = "String is here!";
