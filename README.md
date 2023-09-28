@@ -1,12 +1,11 @@
-# (TODO: your game's title)
+# Hanzi Frenzy
+Author: ZiyuLi
 
-Author: (TODO: your name)
+Design: There are a lot of similar characters in Chinese hanzi, find the only different one in a grid of look-alike characters!
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Text Drawing: All text is computed and rendered at runtime via the `render_text` function.
 
-Text Drawing: (TODO: how does the text drawing in this game work? Is text precomputed? Rendered at runtime? What files or utilities are involved?)
-
-Choices: (TODO: how does the game store choices and narrative? How are they authored? Anything nifty you want to point out?)
+Choices: The choices of this game is independent of each other, so no fancy design is required.
 
 Screen Shot:
 
@@ -14,9 +13,9 @@ Screen Shot:
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+Click on the character that you think is different from the rest before the time runs out!
 
-Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
+Sources: Free font from Google font.
 
 This game was built with [NEST](NEST.md).
 
