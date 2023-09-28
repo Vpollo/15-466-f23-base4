@@ -26,6 +26,7 @@ struct PlayMode : Mode {
 	void render_finish_screen(glm::uvec2 const& drawable_size);
 
 	void level_finish(bool win);
+	void restart();
 
 	//----- game state -----
 	int at_level = 0;
@@ -55,6 +56,8 @@ struct PlayMode : Mode {
 		std::pair< std::string, std::string > ("乒", "乓"),
 		std::pair< std::string, std::string > ("鸟", "乌"),
 		std::pair< std::string, std::string > ("糅", "煣"),
+		std::pair< std::string, std::string > ("姬", "姫"),
+		std::pair< std::string, std::string > ("垚", "壵"),
 	};
 
 	//------- text rendering -------

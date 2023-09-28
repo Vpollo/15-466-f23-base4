@@ -38,16 +38,14 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		if (evt.key.keysym.sym == SDLK_ESCAPE) {
 			SDL_SetRelativeMouseMode(SDL_FALSE);
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_r) {
+			restart();
 		}
-	}
-
-	else if (evt.type == SDL_MOUSEMOTION) {
+	} else if (evt.type == SDL_MOUSEMOTION) {
 		//https://wiki.libsdl.org/SDL2/SDL_GetMouseState
 		SDL_GetMouseState(&mouse_x, &mouse_y);
 		return true;
-	}
-
-	else if (evt.type == SDL_MOUSEBUTTONDOWN) {
+	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
 		mouse_clicked = true;
 	}
 
@@ -71,10 +69,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	if (mouse_clicked) {
 		if (click_on_correct(drawable_size)) {
-			std::cout << "\nsuccess\n"; 
 			level_finish(true);
 		} else {
-			std::cout << "\nfail\n"; 
 			level_finish(false);
 		}
 	}
@@ -82,6 +78,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	if (!all_level_finished) {
 		render_puzzle(drawable_size);
 		render_timer_and_score(drawable_size);
+	} else {
+		render_finish_screen(drawable_size);
 	}
 
 	mouse_clicked = false;
@@ -141,7 +139,21 @@ void PlayMode::render_timer_and_score(glm::uvec2 const& drawable_size) {
 }
 
 void PlayMode::render_finish_screen(glm::uvec2 const& drawable_size){
-	
+	std::string txt = "Your Final Score: " + std::to_string(score);
+	glm::vec2 pos = glm::vec2(FONT_SIZE, drawable_size.y - FONT_SIZE*2);
+	render_text(txt, pos, drawable_size, COLOR_NORMAL);
+
+	txt = "Press R to Retry";
+	pos.y -= FONT_SIZE + 30.0f;
+	render_text(txt, pos, drawable_size, COLOR_NORMAL);
+}
+
+void PlayMode::restart() {
+	at_level = 0;
+	last_level = -1;
+	time_left = LEVEL_TIME;
+	all_level_finished = false;
+	score = 0;
 }
 
 bool PlayMode::mouse_on_this_character(glm::vec2 char_pos, glm::uvec2 const& drawable_size) {
